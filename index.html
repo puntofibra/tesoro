@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>La Isla del Tesoro</title>
+<meta name="description" content="Nueve cruces bajo la niebla y un solo tesoro. Juego de mesa para la tele y los móviles.">
+<meta name="theme-color" content="#04202a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon192.png">
+<link rel="apple-touch-icon" href="appletouch.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Isla del Tesoro">
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#04202a;overflow:hidden}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
+  #carga{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:18px;
+    background:radial-gradient(900px 600px at 50% 35%, #0d5a6b 0%, #04202a 65%);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff6dc;
+    transition:opacity .5s ease}
+  #carga.fuera{opacity:0;pointer-events:none}
+  #carga img{width:132px;height:132px;border-radius:26px;
+    box-shadow:0 18px 50px rgba(0,0,0,.6);animation:lat 3.4s ease-in-out infinite}
+  @keyframes lat{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+  #titulo{font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:#ffd90f;font-weight:800}
+  #sub{font-size:13px;color:#8fd6c2;letter-spacing:.05em}
+  #barra{width:190px;height:5px;border-radius:5px;background:rgba(255,255,255,.14);overflow:hidden}
+  #barra i{display:block;height:100%;width:40%;border-radius:5px;
+    background:linear-gradient(90deg,#f5c40a,#ffd90f);animation:corre 1.35s ease-in-out infinite}
+  @keyframes corre{0%{transform:translateX(-110%)}100%{transform:translateX(260%)}}
+  #rescate{display:none;margin-top:6px;font-size:14px;color:#ffd90f;
+    border:1px solid rgba(255,217,15,.5);border-radius:10px;padding:11px 20px;text-decoration:none}
+  #rescate.on{display:inline-block}
+  #nota{display:none;font-size:12.5px;color:#8fd6c2;max-width:300px;text-align:center;line-height:1.5}
+  #nota.on{display:block}
+</style>
+</head>
+<body>
+
+<div id="carga">
+  <img src="icon512.png" alt="La Isla del Tesoro">
+  <div id="titulo">La Isla del Tesoro</div>
+  <div id="sub">izando velas…</div>
+  <div id="barra"><i></i></div>
+  <a id="rescate" href="#" target="_blank" rel="noopener">Abrir directamente</a>
+  <div id="nota">Si es la primera vez del día, el servidor tarda unos segundos en despertar.</div>
+</div>
+
+<iframe id="app" title="La Isla del Tesoro" allow="fullscreen; autoplay; clipboard-write"
+        allowfullscreen sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox allow-downloads"></iframe>
+
+<script>
+(function(){
+  var EXEC = 'https://script.google.com/macros/s/AKfycbz6iskcV1IzUXGN4JBo3WQSicg-ANxvDpYzlu9yP7arad5NawTz4VNWhDD1aIa__EWk/exec';
+
+  /* pasamos al /exec los parametros con los que se abrio esta pagina (?p=play&g=XXXXX) */
+  var qs = window.location.search || '';
+  var hash = window.location.hash || '';
+  var destino = EXEC + qs + hash;
+
+  var marco = document.getElementById('app');
+  var carga = document.getElementById('carga');
+  var rescate = document.getElementById('rescate');
+  var nota = document.getElementById('nota');
+
+  rescate.href = destino;
+  marco.src = destino;
+
+  var fuera = false;
+  function quitar(){
+    if (fuera) return;
+    fuera = true;
+    carga.classList.add('fuera');
+    setTimeout(function(){ if (carga && carga.parentNode) carga.parentNode.removeChild(carga); }, 700);
+  }
+  marco.addEventListener('load', function(){ setTimeout(quitar, 450); });
+  setTimeout(quitar, 25000);
+
+  /* si a los 12 s no ha cargado, ofrecemos la salida de emergencia */
+  setTimeout(function(){
+    if (!fuera){ rescate.classList.add('on'); nota.classList.add('on'); }
+  }, 12000);
+
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
